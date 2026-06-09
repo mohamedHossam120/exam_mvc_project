@@ -1,0 +1,59 @@
+﻿@model WebAppUsers.Models.CreateQuestionViewModel
+
+@{
+    ViewData["Title"] = "Add Question";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h3 class="m-0">Admin Panel - Add New Question</h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="QuestionText" class="form-label fw-bold">Question Text</label>
+                        <textarea asp-for="QuestionText" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="QuestionText" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="OptionA" class="form-label fw-bold">Option A</label>
+                            <input asp-for="OptionA" class="form-control" />
+                            <span asp-validation-for="OptionA" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="OptionB" class="form-label fw-bold">Option B</label>
+                            <input asp-for="OptionB" class="form-control" />
+                            <span asp-validation-for="OptionB" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="OptionC" class="form-label fw-bold">Option C</label>
+                            <input asp-for="OptionC" class="form-control" />
+                            <span asp-validation-for="OptionC" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="CorrectAnswer" class="form-label fw-bold">Correct Answer</label>
+                        <select asp-for="CorrectAnswer" class="form-select">
+                            <option value="">-- Select Correct Option --</option>
+                            <option value="A">Option A</option>
+                            <option value="B">Option B</option>
+                            <option value="C">Option C</option>
+                        </select>
+                        <span asp-validation-for="CorrectAnswer" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark btn-lg">Save & Publish Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
