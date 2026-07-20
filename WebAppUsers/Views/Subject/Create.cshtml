@@ -1,0 +1,60 @@
+﻿@model WebAppUsers.Models.Subject
+
+@{
+    ViewData["Title"] = "Add New Subject";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h3 class="m-0">Admin Panel - Add New Subject</h3>
+            </div>
+            <div class="card-body p-4">
+                <form id="subjectForm" asp-action="Create" method="post" onsubmit="handleFormSubmit(event)">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name" class="form-label fw-bold">Subject Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Programming, Mathematics" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Code" class="form-label fw-bold">Subject Code</label>
+                        <input asp-for="Code" class="form-control" placeholder="e.g. CS101, MATH202" />
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" id="submitBtn" class="btn btn-dark btn-lg">
+                            Add Subject & Go to Create Questions
+                        </button>
+                        <a asp-action="TakeExam" asp-controller="Exam" class="btn btn-outline-secondary">Back to Exam Panel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleFormSubmit(event) {
+            var form = document.getElementById('subjectForm');
+
+            if (window.jQuery && jQuery(form).valid && !jQuery(form).valid()) {
+                return;
+            }
+
+            var btn = document.getElementById('submitBtn');
+
+            btn.disabled = true;
+
+            btn.innerHTML = `
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Saving Subject... Please wait...
+                    `;
+        }
+    </script>
+}

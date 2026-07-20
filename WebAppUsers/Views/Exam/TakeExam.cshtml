@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Online Exam";
+    var subjects = ViewBag.Subjects as List<WebAppUsers.Models.Subject>;
+    var selectedSubjectId = ViewBag.SelectedSubjectId as int?;
 }
 
 <div class="row justify-content-center mt-5">
@@ -11,67 +13,113 @@
 
             @if (User.IsInRole("Admin"))
             {
-                <a asp-action="Create" class="btn btn-danger">Add Question (Admin Panel)</a>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Subject" asp-action="Create" class="btn btn-outline-dark">Add Subject</a>
+                    <a asp-action="Create" class="btn btn-danger">Add Question</a>
+                </div>
             }
         </div>
 
-        @if (!Model.Any())
+        @if (selectedSubjectId == null)
         {
-            <div class="alert alert-warning text-center">No questions added yet.</div>
+            <div class="card shadow-sm p-4 text-center border-0 mb-5">
+                <h4 class="mb-4 text-secondary">Please select a subject to start the exam</h4>
+                <form asp-action="TakeExam" method="get">
+                    <div class="mb-4 col-md-8 mx-auto">
+                        <select id="subjectId" name="subjectId" class="form-select form-select-lg text-center" required>
+                            <option value="">-- Select a subject here --</option>
+                            @if (subjects != null)
+                            {
+                                @foreach (var sub in subjects)
+                                {
+                                    <option value="@sub.Id">@sub.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm">🚀 Start Exam</button>
+                </form>
+            </div>
         }
         else
         {
-            <form asp-action="SubmitExam" method="post" id="examForm">
-                @{
-                    int count = 1;
-                }
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded shadow-sm">
+                <h4 class="mb-0 text-muted">
+                    Current Subject: <span class="text-primary fw-bold">@ViewBag.SelectedSubjectName</span>
+                </h4>
+                <a asp-action="TakeExam" asp-route-subjectId="" class="btn btn-sm btn-outline-secondary">🔄 Change Subject</a>
+            </div>
 
-                @foreach (var q in Model)
-                {
-                    <div class="card shadow-sm mb-4 border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="text-primary">Q@(count): @q.QuestionText</h5>
-
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <button type="submit"
-                                            form="deleteForm_@q.Id"
-                                            class="btn btn-outline-danger btn-sm px-3">
-                                        Delete
-                                    </button>
-                                }
-                            </div>
-
-                            <hr />
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="answers[@q.Id]" value="A" id="optA_@q.Id" required>
-                                <label class="form-check-label" for="optA_@q.Id">@q.OptionA</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="answers[@q.Id]" value="B" id="optB_@q.Id">
-                                <label class="form-check-label" for="optB_@q.Id">@q.OptionB</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="answers[@q.Id]" value="C" id="optC_@q.Id">
-                                <label class="form-check-label" for="optC_@q.Id">@q.OptionC</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    count++;
-                }
-
-                <div class="d-grid mb-5">
-                    <button type="submit" class="btn btn-success btn-lg">Submit All Answers</button>
-                </div>
-            </form>
-
-            @if (User.IsInRole("Admin"))
+            @if (!Model.Any())
             {
-                @foreach (var q in Model)
+                <div class="alert alert-warning text-center shadow-sm">
+                    ⚠️ No questions available for this subject at the moment!
+                </div>
+            }
+            else
+            {
+                <form asp-action="SubmitExam" method="post" id="examForm">
+                    <input type="hidden" name="subjectId" value="@selectedSubjectId" />
+
+                    @{
+                        int count = 1;
+                        var groupedQuestions = Model.GroupBy(q => q.Subject != null ? q.Subject.Name : "General Questions");
+                    }
+
+                    @foreach (var subjectGroup in groupedQuestions)
+                    {
+                        <div class="alert alert-dark bg-dark text-white fw-bold mb-4 shadow-sm">
+                            <span class="fs-5">📚 Subject: @subjectGroup.Key</span>
+                        </div>
+
+                        @foreach (var q in subjectGroup)
+                        {
+                            <div class="card shadow-sm mb-4 border-0">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="text-primary">Q@(count): @q.QuestionText</h5>
+
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <button type="submit"
+                                                    form="deleteForm_@q.Id"
+                                                    class="btn btn-outline-danger btn-sm px-3">
+                                                Delete
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <hr />
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="answers[@q.Id]" value="A" id="optA_@q.Id" required>
+                                        <label class="form-check-label" for="optA_@q.Id">@q.OptionA</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="answers[@q.Id]" value="B" id="optB_@q.Id">
+                                        <label class="form-check-label" for="optB_@q.Id">@q.OptionB</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="answers[@q.Id]" value="C" id="optC_@q.Id">
+                                        <label class="form-check-label" for="optC_@q.Id">@q.OptionC</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            count++;
+                        }
+                    }
+
+                    <div class="d-grid mb-5">
+                        <button type="submit" class="btn btn-success btn-lg">Submit All Answers</button>
+                    </div>
+                </form>
+
+                @if (User.IsInRole("Admin"))
                 {
-                    <form asp-action="Delete" asp-route-id="@q.Id" method="post" id="deleteForm_@q.Id" onsubmit="return confirm('Are you sure you want to delete this question?');" style="display:none;"></form>
+                    @foreach (var q in Model)
+                    {
+                        <form asp-action="Delete" asp-route-id="@q.Id" method="post" id="deleteForm_@q.Id" onsubmit="return confirm('Are you sure you want to delete this question?');" style="display:none;"></form>
+                    }
                 }
             }
         }

@@ -5,7 +5,7 @@
 }
 
 <div class="row justify-content-center mt-5">
-    <div class="col-md-10">
+    <div class="col-md-11">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-dark text-white py-3">
                 <h4 class="mb-0">👨‍🎓 Students Management Panel</h4>
@@ -25,7 +25,7 @@
                                     <th>Username</th>
                                     <th>Email</th>
                                     <th class="text-center">Status</th>
-                                    <th class="text-center">Score</th>
+                                    <th>Exam Scores per Subject</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -34,17 +34,55 @@
                                 }
                                 @foreach (var student in Model)
                                 {
+                                    bool hasTakenAnyExam = !string.IsNullOrEmpty(student.TakenSubjectIds);
+                                    int examsCount = hasTakenAnyExam
+                                    ? student.TakenSubjectIds.Split(',', StringSplitOptions.RemoveEmptyEntries).Length
+                                    : 0;
+
                                     <tr>
                                         <td>@index</td>
-                                        <td class="fw-bold">@student.Username</td>
+                                        <td class="fw-bold text-secondary">@student.Username</td>
                                         <td>@student.Email</td>
                                         <td class="text-center">
-                                            <span class="badge @(student.HasTakenExam ? "bg-success" : "bg-secondary") px-3 py-2">
-                                                @(student.HasTakenExam ? "Exam Submitted" : "Not Taken Yet")
-                                            </span>
+                                            @if (hasTakenAnyExam)
+                                            {
+                                                <span class="badge bg-success px-3 py-2">
+                                                    Examined (@examsCount)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary px-3 py-2">
+                                                    Not Taken Yet
+                                                </span>
+                                            }
                                         </td>
-                                        <td class="text-center fw-bold text-primary fs-5">
-                                            @student.ExamScore
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(student.SubjectScores))
+                                            {
+                                                var scoreEntries = student.SubjectScores.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach (var entry in scoreEntries)
+                                                    {
+                                                        var parts = entry.Split(':');
+                                                        if (parts.Length == 2)
+                                                        {
+                                                            var subId = parts[0];
+                                                            var score = parts[1];
+
+                                                            <span class="p-2 rounded bg-light border d-inline-block shadow-sm text-sm">
+                                                                📚 <strong>Subject #@subId:</strong>
+                                                                <span class="text-primary fw-bold">@score Deg</span>
+                                                            </span>
+                                                        }
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fs-7">No scores recorded</span>
+                                            }
                                         </td>
                                     </tr>
                                     index++;

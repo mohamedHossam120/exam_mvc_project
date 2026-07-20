@@ -5,7 +5,7 @@ using WebAppUsers.Context;
 
 namespace WebAppUsers.Controllers
 {
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = "Admin")]
     public class StudentController : Controller
     {
         private readonly SchoolDbContext _context;
@@ -20,6 +20,8 @@ namespace WebAppUsers.Controllers
             var students = _context.Users
                                   .Where(u => u.Role == "Student")
                                   .ToList();
+
+            ViewBag.Subjects = _context.Subjects.ToList();
 
             return View(students);
         }

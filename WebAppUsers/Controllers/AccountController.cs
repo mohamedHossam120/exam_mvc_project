@@ -19,14 +19,12 @@ namespace WebAppUsers.Controllers
             _context = context;
         }
 
-        // GET: /Account/Register
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // POST: /Account/Register
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model, string role)
         {
@@ -39,7 +37,6 @@ namespace WebAppUsers.Controllers
                     return View(model);
                 }
 
-                // Security Check: Public registration defaults strictly to Student
                 string finalRole = "Student";
 
                 if (role == "Admin")
@@ -60,7 +57,7 @@ namespace WebAppUsers.Controllers
                     Email = model.Email,
                     Password = model.Password,
                     Role = finalRole,
-                    HasTakenExam = false,
+                    TakenSubjectIds = "", 
                     ExamScore = 0
                 };
 
@@ -77,15 +74,13 @@ namespace WebAppUsers.Controllers
             return View(model);
         }
 
-        // GET: /Account/CreateAdmin
         [HttpGet]
-        [Authorize(Roles = "Admin")] // 🔐 Restrict access to authenticated Admins only
+        [Authorize(Roles = "Admin")] 
         public IActionResult CreateAdmin()
         {
             return View();
         }
 
-        // POST: /Account/CreateAdmin
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAdmin(RegisterViewModel model)
@@ -99,14 +94,13 @@ namespace WebAppUsers.Controllers
                     return View(model);
                 }
 
-                // Persist the new account explicitly with Admin privileges
                 User newAdmin = new User
                 {
                     Username = model.Username,
                     Email = model.Email,
                     Password = model.Password,
                     Role = "Admin",
-                    HasTakenExam = false,
+                    TakenSubjectIds = "", 
                     ExamScore = 0
                 };
 
@@ -118,14 +112,12 @@ namespace WebAppUsers.Controllers
             return View(model);
         }
 
-        // GET: /Account/Login
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // POST: /Account/Login
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -159,7 +151,6 @@ namespace WebAppUsers.Controllers
             return View(model);
         }
 
-        // GET: /Account/Logout
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
